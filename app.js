@@ -36,19 +36,36 @@ const button = document.getElementById("button");
 const afficherResultat = document.querySelector(".bmi-value");
 const afficherIMC = document.querySelector(".result");
 
-button.addEventListener("click", (e) => {
+button.addEventListener("click", handleForm);
+
+function handleForm(e) {
   e.preventDefault();
+  calculateBMI();
+}
+
+function calculateBMI() {
   const tallValue = tall.value;
   const poidsValue = poids.value;
-  let BMI = Number((poidsValue * (tallValue / 100)) / 2);
-  return showResult(BMI);
-});
+  if (!tallValue || !poidsValue || tallValue <= 0 || poidsValue <= 0) {
+    handleError();
+    return;
+  }
+  const BMI = (poidsValue / Math.pow(tallValue / 100, 2)).toFixed(1);
+  showResult(BMI);
+}
 
-const showResult = (IMC) => {
+function handleError() {
+  afficherResultat.textContent = "Wops";
+  afficherResultat.style.color = "inherit";
+  afficherIMC.textContent = "Remplissez correctement les inputs";
+}
+
+function showResult(BMI) {
   const rank = BMIData.find((data) => {
-    if (IMC >= data.range[0] && IMC < data.range[1]) return data;
+    if (BMI >= data.range[0] && BMI < data.range[1]) return data;
+    else if (typeof data.range === "number" && BMI >= data.range) return data;
   });
-  afficherIMC.textContent = IMC;
-  afficherIMC.style.color = rank.color;
-  afficherResultat.textContent = `${rank.name}`;
-};
+  afficherResultat.textContent = BMI;
+  afficherResultat.style.color = `${rank.color}`;
+  afficherIMC.textContent = `Résultat : ${rank.name}`;
+}
